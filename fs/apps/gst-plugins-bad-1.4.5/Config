@@ -1,0 +1,12 @@
+config FS_APPS_GSTREAMER_PLUGINS_BAD_1_0
+	bool "gstreamer-plugins-bad 1.4.5"
+	select FS_APPS_GSTREAMER_1_0
+	select FS_APPS_GSTREAMER_PLUGINS_BASE_1_0
+	select FS_APPS_LIBGCRYPT
+	select FS_APPS_LIBEXIF
+	select FS_APPS_LIBOIL
+	select TOOLCHAIN_INSTALL_CPP_SUPPORT
+	help
+	This option enabled the bad plugins for gstreamer that
+	doesn't have external dependencies on other libraries
+

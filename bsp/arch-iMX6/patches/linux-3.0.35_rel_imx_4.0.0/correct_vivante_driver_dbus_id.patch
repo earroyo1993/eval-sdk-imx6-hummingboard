@@ -1,0 +1,13 @@
+Index: kernel/linux-3.0.35-4.0.0/drivers/gpu/drm/vivante/vivante_drv.c
+===================================================================
+--- kernel.orig/linux-3.0.35-4.0.0/drivers/gpu/drm/vivante/vivante_drv.c	2013-09-27 15:21:40.000000000 -0600
++++ kernel/linux-3.0.35-4.0.0/drivers/gpu/drm/vivante/vivante_drv.c	2013-12-12 09:45:08.899698757 -0600
+@@ -55,7 +55,7 @@
+ 
+ #include "drm_pciids.h"
+ 
+-static char platformdevicename[] = "Vivante GCCore";
++static char platformdevicename[] = "Vivante GCCore:00";
+ static struct platform_device *pplatformdev;
+ 
+ static struct drm_driver driver = {

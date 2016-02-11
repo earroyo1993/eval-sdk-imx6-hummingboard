@@ -1,0 +1,16 @@
+---
+ src/src/common/wscript |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: gst-plugins-imx-0.11.1/src/src/common/wscript
+===================================================================
+--- gst-plugins-imx-0.11.1.orig/src/src/common/wscript
++++ gst-plugins-imx-0.11.1/src/src/common/wscript
+@@ -15,5 +15,7 @@
+ 		vnum = bld.env['GSTIMX_VERSION'],
+ 		source = bld.path.ant_glob('*.c')
+ 	)
++	bld.install_files('${PREFIX}/include', ['phys_mem_meta.h',
++											'phys_mem_addr.h'])
+ 	if bld.env['BUILD_FOR_ANDROID']:
+ 		obj.install_path = os.path.join(bld.env['PREFIX'], 'lib')

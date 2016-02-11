@@ -1,0 +1,24 @@
+Index: u-boot-2013.10/src/drivers/serial/serial_mxc.c
+===================================================================
+--- u-boot-2013.10.orig/src/drivers/serial/serial_mxc.c	2015-11-25 15:31:46.000000000 -0600
++++ u-boot-2013.10/src/drivers/serial/serial_mxc.c	2015-11-26 16:06:57.260387383 -0600
+@@ -152,15 +152,14 @@
+ 
+ static void mxc_serial_putc(const char c)
+ {
+-	__REG(UART_PHYS + UTXD) = c;
++
++	if (c == '\n')
++		__REG(UART_PHYS + UTXD) = '\r';
++	__REG(UART_PHYS + UTXD) = c;	
+ 
+ 	/* wait for transmitter to be ready */
+ 	while (!(__REG(UART_PHYS + UTS) & UTS_TXEMPTY))
+ 		WATCHDOG_RESET();
+-
+-	/* If \n, also do \r */
+-	if (c == '\n')
+-		serial_putc ('\r');
+ }
+ 
+ /*

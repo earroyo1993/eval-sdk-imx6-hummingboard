@@ -1,0 +1,31 @@
+Index: gst-plugins-imx-4.0.4/src/libs/v4l2_core/gstimxv4l2.c
+===================================================================
+--- gst-plugins-imx-4.0.4.orig/src/libs/v4l2_core/gstimxv4l2.c
++++ gst-plugins-imx-4.0.4/src/libs/v4l2_core/gstimxv4l2.c
+@@ -60,6 +60,7 @@ GST_DEBUG_CATEGORY (imxv4l2_debug);
+ #define MXC_V4L2_CAPTURE_NAME "mxc_v4l2"
+ #define MXC_V4L2_CAPTURE_CAMERA_NAME "ov"
+ #define MXC_V4L2_CAPTURE_TVIN_NAME "adv"
++#define MXC_V4L2_CAPTURE_TC_NAME "tc"
+ #define MXC_V4L2_CAPTURE_TVIN_VADC_NAME "vadc"
+ #define PXP_V4L2_CAPTURE_NAME "csi_v4l2"
+ 
+@@ -181,7 +182,7 @@ static guint g_camera_format_PXP[] = {
+ 
+ static IMXV4l2DeviceMap g_device_maps[] = {
+   {"/dev/video0", FALSE, "/dev/fb0"},
+-  {"/dev/video16", TRUE, "/dev/fb0"},
++  {"/dev/video16", TRUE, "/dev/fb1"},
+   {"/dev/video17", FALSE, "/dev/fb0"},
+   {"/dev/video18", TRUE, "/dev/fb2"},
+   {"/dev/video19", FALSE, "/dev/fb2"},
+@@ -915,7 +916,8 @@ gst_imx_v4l2capture_set_function (IMXV4l
+     if (!strncmp (chip.match.name, MXC_V4L2_CAPTURE_CAMERA_NAME, 2)) {
+       handle->dev_itf.v4l2capture_config = (V4l2captureConfig)gst_imx_v4l2capture_config_camera;
+       handle->support_format_table = g_camera_format_IPU;
+-    } else if (!strncmp (chip.match.name, MXC_V4L2_CAPTURE_TVIN_NAME, 3)) {
++    } else if ((!strncmp (chip.match.name, MXC_V4L2_CAPTURE_TVIN_NAME, 3)) ||
++	       (!strncmp (chip.match.name, MXC_V4L2_CAPTURE_TC_NAME, 2)) ) {
+       handle->dev_itf.v4l2capture_config = (V4l2captureConfig)gst_imx_v4l2capture_config_camera;
+       handle->support_format_table = g_camera_format_IPU;
+       handle->is_tvin = TRUE;

@@ -1,0 +1,24 @@
+config UBOOT_NETWORKING
+	bool
+	default y
+
+config UBOOT_UPGRADE_BOOTLOADER_ADDR
+	string
+	default "0x12000000"
+
+config UBOOT_SPI_FLASH_MEMORY
+	bool
+	default n
+
+#config UBOOT_NOR_FLASH_MEMORY
+#	bool
+#	default y
+
+config UBOOT_USB_RECOVERY_SUPPORT
+	bool
+	default y
+
+config UBOOT_SPI_INIT_CMD
+	string
+	default "sf probe"
+

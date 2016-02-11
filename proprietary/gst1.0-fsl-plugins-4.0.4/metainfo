@@ -1,0 +1,1 @@
+TARGET_REQUIRED="gst-plugins-imx imx-lib imx-vpu-lib libfslcodec libfslparser libfslvpuwrap firmware-imx imx-gpu-viv"

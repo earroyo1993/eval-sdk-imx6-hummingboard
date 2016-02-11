@@ -1,0 +1,5 @@
+config PROPRIETARY_IMX_VPU_LIB
+	bool "imx-vpu 5.4.28"
+	help
+	    This option enables imx vpu lib for iMX6 processor, kernel version 
+	    5.4.28

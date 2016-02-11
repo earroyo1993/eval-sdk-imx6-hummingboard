@@ -1,0 +1,26 @@
+#$L$
+# Copyright (C) 2011 Ridgerun (http://www.ridgerun.com). 
+#
+#$L$
+
+ifeq ($(DEVDIR),)
+$(error ====== DEVDIR variable is empty, invoke this Makefile from the BSP root, or provide the path to it =====)
+endif
+include $(DEVDIR)/bsp/mach/Make.conf
+
+UBOOT_BOARD_CONFIG = mx6_cubox-i_config
+
+.PHONY: mach_build mach_clean 
+
+mach_post_build: 
+	$(V) $(BOOTLOADERDIR)/src/tools/mkimage -T script -A arm -C none -n 'Boot Script' -d $(BOOTLOADERDIR)/src/board/solidrun/mx6_cubox-i/mx6_cubox-i_bootscript.txt $(IMAGEDIR)/6x_bootscript > /dev/null
+
+mach_build: 
+
+mach_clean:
+
+copy_images::
+	$(V) cp src/SPL $(IMAGES) 
+
+gen_uboot_flashbin: 
+	$(V) touch $@

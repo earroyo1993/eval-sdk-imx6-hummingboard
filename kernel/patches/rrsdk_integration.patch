@@ -1,0 +1,104 @@
+Index: kernel/linux-3.14.14/drivers/i2c/algos/Kconfig
+===================================================================
+--- kernel.orig/linux-3.14.14/drivers/i2c/algos/Kconfig	2015-11-25 15:19:09.000000000 -0600
++++ kernel/linux-3.14.14/drivers/i2c/algos/Kconfig	2015-11-26 15:27:47.644404718 -0600
+@@ -3,7 +3,7 @@
+ #
+ 
+ menu "I2C Algorithms"
+-	visible if !I2C_HELPER_AUTO
++	depends on !I2C_HELPER_AUTO
+ 
+ config I2C_ALGOBIT
+ 	tristate "I2C bit-banging interfaces"
+Index: kernel/linux-3.14.14/drivers/media/tuners/Kconfig
+===================================================================
+--- kernel.orig/linux-3.14.14/drivers/media/tuners/Kconfig	2015-11-25 15:19:25.000000000 -0600
++++ kernel/linux-3.14.14/drivers/media/tuners/Kconfig	2015-11-26 15:28:36.052404361 -0600
+@@ -15,7 +15,7 @@
+ 	select MEDIA_TUNER_MC44S803 if MEDIA_SUBDRV_AUTOSELECT
+ 
+ menu "Customize TV tuners"
+-	visible if !MEDIA_SUBDRV_AUTOSELECT
++	depends on !MEDIA_SUBDRV_AUTOSELECT
+ 	depends on MEDIA_ANALOG_TV_SUPPORT || MEDIA_DIGITAL_TV_SUPPORT || MEDIA_RADIO_SUPPORT
+ 
+ config MEDIA_TUNER_SIMPLE
+Index: kernel/linux-3.14.14/drivers/media/dvb-frontends/Kconfig
+===================================================================
+--- kernel.orig/linux-3.14.14/drivers/media/dvb-frontends/Kconfig	2015-11-25 15:19:30.000000000 -0600
++++ kernel/linux-3.14.14/drivers/media/dvb-frontends/Kconfig	2015-11-26 15:29:33.604403936 -0600
+@@ -1,5 +1,5 @@
+ menu "Customise DVB Frontends"
+-	visible if !MEDIA_SUBDRV_AUTOSELECT
++	depends on !MEDIA_SUBDRV_AUTOSELECT
+ 
+ comment "Multistandard (satellite) frontends"
+ 	depends on DVB_CORE
+Index: kernel/linux-3.14.14/drivers/staging/echo/Kconfig
+===================================================================
+--- kernel.orig/linux-3.14.14/drivers/staging/echo/Kconfig	2015-11-25 15:19:20.000000000 -0600
++++ kernel/linux-3.14.14/drivers/staging/echo/Kconfig	2015-11-26 15:30:19.876403595 -0600
+@@ -1,4 +1,4 @@
+-config ECHO
++config ECHOLINE
+ 	tristate "Line Echo Canceller support"
+ 	default n
+ 	---help---
+Index: kernel/linux-3.14.14/drivers/staging/echo/Makefile
+===================================================================
+--- kernel.orig/linux-3.14.14/drivers/staging/echo/Makefile	2015-11-25 15:19:20.000000000 -0600
++++ kernel/linux-3.14.14/drivers/staging/echo/Makefile	2015-11-26 15:31:35.908403034 -0600
+@@ -1 +1 @@
+-obj-$(CONFIG_ECHO) += echo.o
++obj-$(CONFIG_ECHOLINE) += echo.o
+Index: kernel/linux-3.14.14/Makefile
+===================================================================
+--- kernel.orig/linux-3.14.14/Makefile	2015-11-25 15:18:00.000000000 -0600
++++ kernel/linux-3.14.14/Makefile	2015-11-26 15:32:14.028402753 -0600
+@@ -1,7 +1,7 @@
+ VERSION = 3
+ PATCHLEVEL = 14
+ SUBLEVEL = 14
+-EXTRAVERSION =
++EXTRAVERSION = -ridgerun
+ NAME = Remembering Coco
+ 
+ # *DOCUMENTATION*
+Index: kernel/linux-3.14.14/drivers/media/i2c/Kconfig
+===================================================================
+--- kernel.orig/linux-3.14.14/drivers/media/i2c/Kconfig	2015-11-25 15:19:28.000000000 -0600
++++ kernel/linux-3.14.14/drivers/media/i2c/Kconfig	2015-11-26 15:33:00.356402411 -0600
+@@ -22,7 +22,7 @@
+ #
+ 
+ menu "Encoders, decoders, sensors and other helper chips"
+-	visible if !MEDIA_SUBDRV_AUTOSELECT
++	depends on !MEDIA_SUBDRV_AUTOSELECT
+ 
+ comment "Audio decoders, processors and mixers"
+ 
+Index: kernel/linux-3.14.14/arch/arm/boot/dts/Makefile
+===================================================================
+--- kernel.orig/linux-3.14.14/arch/arm/boot/dts/Makefile	2015-11-25 15:19:52.000000000 -0600
++++ kernel/linux-3.14.14/arch/arm/boot/dts/Makefile	2015-11-26 15:34:48.012401617 -0600
+@@ -188,7 +188,6 @@
+ 	imx6q-sbc6x.dtb \
+ 	imx6q-udoo.dtb \
+ 	imx6q-wandboard.dtb \
+-	imx6sl-evk.dtb \
+ 	vf610-cosmic.dtb \
+ 	vf610-twr.dtb
+ dtb-$(CONFIG_ARCH_MXS) += imx23-evk.dtb \
+Index: kernel/linux-3.14.14/scripts/Makefile.lib
+===================================================================
+--- kernel.orig/linux-3.14.14/scripts/Makefile.lib	2015-11-25 15:18:33.000000000 -0600
++++ kernel/linux-3.14.14/scripts/Makefile.lib	2015-11-26 15:36:04.008401056 -0600
+@@ -152,6 +152,7 @@
+ dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
+ 		 -I$(srctree)/arch/$(SRCARCH)/boot/dts                   \
+ 		 -I$(srctree)/arch/$(SRCARCH)/boot/dts/include           \
++		 -I$(srctree)/include           \
+ 		 -I$(srctree)/drivers/of/testcase-data                   \
+ 		 -I$(srctree)/include                                    \
+ 		 -undef -D__DTS__

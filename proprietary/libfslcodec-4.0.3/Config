@@ -1,0 +1,5 @@
+config PROPRIETARY_LIB_FSL_CODEC
+	bool "libfslcodec 4.0.3"
+        select FS_APPS_GSTREAMER
+	help
+	    This option enables the freescale gstreamer codec library.

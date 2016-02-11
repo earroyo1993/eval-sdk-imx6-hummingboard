@@ -1,0 +1,5 @@
+config PROPRIETARY_IMX_LIB
+	bool "imx-lib 3.10.53-1.1.0"
+	help
+	    This option enables imx lib for iMX6 processor, kernel version 
+	    3.10.53-1.1.0

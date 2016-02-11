@@ -1,0 +1,8 @@
+Index: qt-5.5.0/src/qtgraphicaleffects/tests/tests.pro
+===================================================================
+--- qt-5.5.0.orig/src/qtgraphicaleffects/tests/tests.pro	2015-08-10 15:27:17.935684957 -0600
++++ qt-5.5.0/src/qtgraphicaleffects/tests/tests.pro	2015-08-10 16:24:32.372297988 -0600
+@@ -1,2 +1,2 @@
+ TEMPLATE = subdirs
+-SUBDIRS += manual auto
++SUBDIRS += manual

@@ -1,0 +1,117 @@
+Index: gst-plugins-imx-4.0.4/src/plugins/vpu/gstvpuenc.c
+===================================================================
+--- gst-plugins-imx-4.0.4.orig/src/plugins/vpu/gstvpuenc.c
++++ gst-plugins-imx-4.0.4/src/plugins/vpu/gstvpuenc.c
+@@ -39,6 +39,7 @@
+ #include <gst/video/video.h>
+ #include <gst/video/gstvideometa.h>
+ #include <gst/video/gstvideopool.h>
++#include <phys_mem_meta.h>
+ #include "gstimxcommon.h"
+ #include "gstvpuallocator.h"
+ #include "gstvpuenc.h"
+@@ -749,6 +750,7 @@ gst_vpu_enc_handle_frame (GstVideoEncode
+   GstMapInfo minfo;
+ 	GstBuffer *pool_buffer = NULL;
+ 	gint src_stride;
++  unsigned char *phys_ptr;
+ 
+ 	memset(&enc_enc_param, 0, sizeof(enc_enc_param));
+ 	memset(&input_framebuf, 0, sizeof(input_framebuf));
+@@ -767,6 +769,13 @@ gst_vpu_enc_handle_frame (GstVideoEncode
+   }
+ 
+   if (!gst_buffer_is_phymem (frame->input_buffer)) {
++    GstImxPhysMemMeta *phys_mem_meta;
++    phys_mem_meta = GST_IMX_PHYS_MEM_META_GET(frame->input_buffer);
++    if (phys_mem_meta != NULL) {
++      phys_ptr = (unsigned char*)(phys_mem_meta->phys_addr);	    
++      goto set_input;
++    }
++      
+     GstVideoInfo info = enc->state->info;
+     GstVideoFrame frame1, frame2;
+ 
+@@ -798,47 +807,51 @@ gst_vpu_enc_handle_frame (GstVideoEncode
+     input_buffer = frame->input_buffer;
+ 	}
+ 
+-	/* Set up physical addresses for the input framebuffer */
+-	{
+-		gsize *plane_offsets;
+-		gint *plane_strides;
+-		GstVideoMeta *video_meta;
+-    PhyMemBlock *input_phys_buffer;
+-    unsigned char *phys_ptr;
+-
+-		/* Try to use plane offset and stride information from the video
+-		 * metadata if present, since these can be more accurate than
+-		 * the information from the video info */
+-		video_meta = gst_buffer_get_video_meta(input_buffer);
+-		if (video_meta != NULL) {
+-			plane_offsets = video_meta->offset;
+-			plane_strides = video_meta->stride;
+-		} else {
+-			plane_offsets = enc->state->info.offset;
+-			plane_strides = enc->state->info.stride;
+-		}
++  {
+ 
++    PhyMemBlock *input_phys_buffer;
++       
+     input_phys_buffer = gst_buffer_query_phymem_block (input_buffer);
+-		if (input_phys_buffer == NULL) {
++    if (input_phys_buffer == NULL) {
+       GST_ERROR_OBJECT(enc, "could not get physical address from input buffer.");
+       ret = GST_FLOW_ERROR;
+       goto bail;
+     }
+ 
+-		phys_ptr = (unsigned char*)(input_phys_buffer->paddr);
++    phys_ptr = (unsigned char*)(input_phys_buffer->paddr);
++  }
+ 
+-		input_framebuf.pbufY = phys_ptr;
+-		input_framebuf.pbufCb = phys_ptr + plane_offsets[1];
+-		input_framebuf.pbufCr = phys_ptr + plane_offsets[2];
+-		input_framebuf.pbufMvCol = NULL; /* not used by the VPU encoder */
+-		input_framebuf.nStrideY = plane_strides[0];
+-		input_framebuf.nStrideC = plane_strides[1];
++ set_input: 
++  /* Set up physical addresses for the input framebuffer */
++  {
++    gsize *plane_offsets;
++    gint *plane_strides;
++    GstVideoMeta *video_meta;
++  
++    /* Try to use plane offset and stride information from the video
++     * metadata if present, since these can be more accurate than
++     * the information from the video info */
++    video_meta = gst_buffer_get_video_meta(input_buffer);
++    if (video_meta != NULL) {
++      plane_offsets = video_meta->offset;
++      plane_strides = video_meta->stride;
++    } else {
++      plane_offsets = enc->state->info.offset;
++      plane_strides = enc->state->info.stride;
++    }
++	
++    input_framebuf.pbufY = phys_ptr;
++    input_framebuf.pbufCb = phys_ptr + plane_offsets[1];
++    input_framebuf.pbufCr = phys_ptr + plane_offsets[2];
++    input_framebuf.pbufMvCol = NULL; /* not used by the VPU encoder */
++    input_framebuf.nStrideY = plane_strides[0];
++    input_framebuf.nStrideC = plane_strides[1];
+ 
+-		/* this is needed for framebuffers registration below */
+-		src_stride = plane_strides[0];
++    /* this is needed for framebuffers registration below */
++    src_stride = plane_strides[0];
+ 
+-		GST_TRACE_OBJECT(enc, "width: %d   height: %d   stride 0: %d   stride 1: %d   offset 0: %d   offset 1: %d   offset 2: %d", GST_VIDEO_INFO_WIDTH(&(enc->state->info)), GST_VIDEO_INFO_HEIGHT(&(enc->state->info)), plane_strides[0], plane_strides[1], plane_offsets[0], plane_offsets[1], plane_offsets[2]);
+-	}
++    GST_TRACE_OBJECT(enc, "width: %d   height: %d   stride 0: %d   stride 1: %d   offset 0: %d   offset 1: %d   offset 2: %d", GST_VIDEO_INFO_WIDTH(&(enc->state->info)), GST_VIDEO_INFO_HEIGHT(&(enc->state->info)), plane_strides[0], plane_strides[1], plane_offsets[0], plane_offsets[1], plane_offsets[2]);
++  }
+ 
+   // Allocate needed physical buffer.
+   if (!gst_vpu_enc_allocate_physical_mem (enc, src_stride)) {

@@ -1,0 +1,3 @@
+v4l2src-change-name.patch
+v4l2-add-capture-type.patch
+vpuenc-gst-imx-compatibility.patch

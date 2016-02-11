@@ -1,0 +1,19 @@
+config PROPRIETARY_GSTREAMER_PLUGINS_IMX_4_0_4
+	bool "gstreamer-plugins-imx 4.0.4"
+	select FS_APPS_GSTREAMER_PLUGINS_BASE
+	select FS_APPS_GSTREAMER
+	select PROPRIETARY_GSTREAMER_PLUGINS_IMX
+	select PROPRIETARY_IMX_LIB
+	select PROPRIETARY_IMX_VPU_LIB
+	select PROPRIETARY_LIB_FSL_CODEC
+	select PROPRIETARY_LIB_FSL_VPU_WRAP
+	select PROPRIETARY_LIB_FSL_PARSER
+	select PROPRIETARY_FIRMWARE_IMX
+	select PROPRIETARY_IMX_GPU_VIV
+	select FS_APPS_GSTREAMER_PLUGINS_BAD_1_0
+	select FS_APPS_GSTREAMER_PLUGINS_GOOD_1_0
+	select FS_APPS_GSTREAMER_PLUGINS_UGLY_1_0
+	default y
+	help
+	    This option enables the freescale gstreamer plugins for iMX6 boards, kernel 
+	    version 3.14.28-1.0.0

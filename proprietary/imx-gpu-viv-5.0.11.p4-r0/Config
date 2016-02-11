@@ -1,0 +1,35 @@
+config PROPRIETARY_IMX_GPU_VIV
+	bool "imx-gpu-viv 5.0.11.p4.1-hfp"
+	default n
+	help
+	    Drivers for vivante GPU
+
+config PROPRIETARY_FSL_VIVANTE_SAMPLE_APPS
+	bool "GPU Vivante sample applications"
+	depends on PROPRIETARY_IMX_GPU_VIV
+	default n
+	help
+	    Install vivante sample apps onto target file system
+	    under /opt/viv_samples
+
+config PROPRIETARY_FSL_G2D_SAMPLE_APPS
+	bool "GPU G2D sample applications"
+	depends on PROPRIETARY_IMX_GPU_VIV
+	default n
+	help
+	    Install g2d sample apps onto target file system
+	    under /opt/fsl-samples
+
+config PROPRIETARY_GPU_APITRACE
+	bool "GPU apitrace"
+	depends on PROPRIETARY_IMX_GPU_VIV
+	default n
+	help
+	    Install gpu apitrace
+
+config PROPRIETARY_GPU_TOOLS
+	bool "GPU Tools"
+	depends on PROPRIETARY_IMX_GPU_VIV
+	default n
+	help
+	    Install gpu tools

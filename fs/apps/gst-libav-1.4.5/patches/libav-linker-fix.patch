@@ -1,0 +1,16 @@
+Index: gst-libav-1.4.5/src/gst-libs/ext/libav/libavcodec/arm/videodsp_armv5te.S
+===================================================================
+--- gst-libav-1.4.5.orig/src/gst-libs/ext/libav/libavcodec/arm/videodsp_armv5te.S
++++ gst-libav-1.4.5/src/gst-libs/ext/libav/libavcodec/arm/videodsp_armv5te.S
+@@ -23,9 +23,10 @@
+ #include "libavutil/arm/asm.S"
+ 
+ function ff_prefetch_arm, export=1
++1:	
+         subs            r2,  r2,  #1
+         pld             [r0]
+         add             r0,  r0,  r1
+-        bne             X(ff_prefetch_arm)
++        bne             1b
+         bx              lr
+ endfunc

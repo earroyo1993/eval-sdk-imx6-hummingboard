@@ -1,0 +1,56 @@
+#$L$
+# Copyright (C) 2013 Ridgerun (http://www.ridgerun.com). 
+#$L$
+
+
+HOST_IP ?= $(shell $(DEVDIR)/bsp/scripts/find_ip_address.sh $(CONFIG_INSTALLER_HOST_NET_INTERFACE))
+ifeq ($(HOST_IP),$(CONFIG_INSTALLER_HOST_NET_INTERFACE))
+$(error Unable to identify the IP address of your machine on interface $(CONFIG_INSTALLER_HOST_NET_INTERFACE), check your configuration variable INSTALLER_HOST_NET_INTERFACE and verify your network connection is alive)
+endif
+
+BOOTARGS=$(shell cat $(IMAGEDIR)/cmdline)
+
+WORKDIR=$(IMAGEDIR)/openfd
+
+SD_ARGS+= --kernel-file $(IMAGEDIR)/vmlinuz \
+  --kernel-file-type zImage \
+  --uboot-file $(IMAGEDIR)/bootloader \
+  --spl-file $(IMAGEDIR)/SPL \
+  --uboot-bootscript $(IMAGEDIR)/6x_bootscript \
+  --uboot-load-addr $(CONFIG_INSTALLER_LOAD_ADDRS) \
+  --work-dir $(WORKDIR) \
+  --uboot-bs 1K \
+  --uboot-seek 42
+ifneq ($(CONFIG_FS_TARGET_NFSROOT),y)
+SD_ARGS += --rootfs $(FSROOT)
+endif
+
+ifeq ($(CONFIG_INSTALLER_SD_DEVICE_LOOPBACK),y)
+SD_MODE=sd-img
+SD_ARGS += --image $(IMAGEDIR)/sdcard.img \
+  --image-size-mb $(CONFIG_INSTALLER_SD_DEVICE_LOOPBACK_SIZE)
+else
+SD_MODE=sd
+SD_ARGS += --device $(CONFIG_INSTALLER_SD_DEVICE)
+endif
+
+ifeq ($(CONFIG_KERNEL_GENERATE_DEVICE_TREE_BLOB),y)
+SD_ARGS += --kernel-devicetree $(IMAGEDIR)/$(CONFIG_BSP_MACH_INSTALLER_DTS_FILENAME).dtb
+endif
+
+ifeq ($(CONFIG_INSTALLER_MODE_TFTP_KERNEL),y)
+# TFTP args
+TFTP_ARGS = --kernel-tftp --host-ip-addr $(HOST_IP) \
+  --tftp-dir $(CONFIG_INSTALLER_TFTP_SERVER_DIRECTORY) \
+  --tftp-port 69
+ifeq ($(CONFIG_INSTALLER_STATIC_IP),y)
+TFTP_ARGS+= --board-net-mode static --board-ip-addr $(CONFIG_INSTALLER_IPADDR)
+endif
+endif
+
+callinstallersd:
+	$(V) mkdir -p $(WORKDIR)
+	$(V) $(INSTALLER_EXE) $(INSTALLER_ARGS) $(SD_MODE) $(SD_ARGS) --uboot-bootargs "$(BOOTARGS)" $(TFTP_ARGS)
+
+installfsonly: $(IMAGEDIR)/fsimage callinstallersd
+install: installmemorymap callinstallersd

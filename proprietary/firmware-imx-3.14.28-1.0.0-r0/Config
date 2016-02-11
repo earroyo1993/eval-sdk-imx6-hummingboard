@@ -1,0 +1,6 @@
+config PROPRIETARY_FIRMWARE_IMX
+	bool "firmware-imx-3.14.28-1.0.0-r0"
+	help
+	This option enables teh firmware for the imx6 board kernel 
+	version 3.14.28-1.0.0-ga
+

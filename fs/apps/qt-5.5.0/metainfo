@@ -1,0 +1,2 @@
+TARGET_REQUIRED="imx-gpu-viv dbus freetype glib libpng jpeg sqlite tslib zlib"
+HOST_REQUIRED="xkeyboard-config"

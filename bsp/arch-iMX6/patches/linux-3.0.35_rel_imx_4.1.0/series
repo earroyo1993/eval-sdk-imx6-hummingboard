@@ -1,0 +1,8 @@
+fix_int_ll64_path.patch
+enable_two_cameras_same_time.patch
+#correct_vivante_driver_dbus_id.patch
+add_ridgerun_logo.patch
+add_realtek_rtl8192du_usb_wlan_support.patch
+#disable_qos_for_hdmi_output.patch
+fix_ipu_potential_NULL_pointer_dereference.patch
+ipuv3_IC_add_check_for_a_idmac_errata.patch

@@ -1,0 +1,21 @@
+---
+ src/src/audio/wscript |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+Index: gst-plugins-imx-0.11.1/src/src/audio/wscript
+===================================================================
+--- gst-plugins-imx-0.11.1.orig/src/src/audio/wscript
++++ gst-plugins-imx-0.11.1/src/src/audio/wscript
+@@ -15,7 +15,11 @@
+ 		print(soname)
+ 		codec_fn = orig_codec_fn
+ 
+-		path = conf.env['UNIAUDIO_TARGET_CODEC_PATH']
++		#~ path = conf.env['UNIAUDIO_TARGET_CODEC_PATH']
++		#~ In the current way 'path' has the hos computer's full path 
++		#~ so when running on the target board it fails loading the codec libraries 
++		#~ Good enough for now but we should look for a better way
++		path = "/usr/lib/imx-mm/audio-codec/wrap/"
+ 		fullpath = os.path.join(path, soname)
+ 		suffix = "%s_%s" % (codec_name.upper(), arm_core.upper())
+ 		conf.env['CODEC_ENTRIES'] += [ { "filename": fullpath, "gstcaps": gstcaps } ]

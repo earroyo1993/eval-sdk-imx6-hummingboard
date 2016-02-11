@@ -1,0 +1,7 @@
+config PROPRIETARY_TI_CONNECTIVITY_FIRMWARE
+	bool "firmware for wl12xx modules"
+	select FS_APPS_UDEV
+	help
+	    With this option you enable the installation of the 
+	    wl12xx - Texas Instruments 802.11 WLAN driver for 
+	    wilink6/7 chips

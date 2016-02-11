@@ -1,0 +1,30 @@
+Index: kernel/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_device.c
+===================================================================
+--- kernel.orig/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_device.c	2014-07-02 16:16:50.000000000 -0600
++++ kernel/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_device.c	2014-10-20 11:40:24.217485637 -0600
+@@ -1402,7 +1402,6 @@
+ 	struct ipu_task_entry *tsk =
+ 			container_of(ref, struct ipu_task_entry, refcount);
+ 
+-	memset(tsk, 0, sizeof(*tsk));
+ 	kfree(tsk);
+ }
+ 
+@@ -1718,7 +1717,6 @@
+ 		if (!tsk)
+ 			continue;
+ 		kfree(tsk);
+-		memset(tsk, 0, sizeof(*tsk));
+ 	}
+ 	t->state = STATE_ERR;
+ 	return ret;
+@@ -2955,8 +2953,8 @@
+ 		lock = &t->parent->split_lock;
+ 		mutex_lock(lock);
+ 		t->split_done = 1;
+-		mutex_unlock(lock);
+ 		wake_up(&t->parent->split_waitq);
++		mutex_unlock(lock);
+ 	}
+ 
+ 	return;

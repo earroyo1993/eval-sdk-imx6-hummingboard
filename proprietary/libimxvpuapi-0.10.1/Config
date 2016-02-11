@@ -1,0 +1,9 @@
+config PROPRIETARY_LIB_IMX_VPU_API
+	bool "libimxvpuapi 0.10.1"
+	select PROPRIETARY_IMX_VPU_LIB
+	default y
+	help
+	    This library provides an API for using the iMX6 VPU video engine. 
+	    It is an alternative to Freescale's VPU wrapper. 
+	    Both the wrapper and this library are layered on top of imx-vpu , 
+	    the low-level iMX6 VPU interface.

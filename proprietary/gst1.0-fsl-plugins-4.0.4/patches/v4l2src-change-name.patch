@@ -1,0 +1,202 @@
+Index: gst-plugins-imx-4.0.4/src/plugins/v4l2/gstimxv4l2src.c
+===================================================================
+--- gst-plugins-imx-4.0.4.orig/src/plugins/v4l2/gstimxv4l2src.c
++++ gst-plugins-imx-4.0.4/src/plugins/v4l2/gstimxv4l2src.c
+@@ -38,13 +38,13 @@ enum {
+ };
+ 
+ #define gst_imx_v4l2src_parent_class parent_class
+-G_DEFINE_TYPE (GstImxV4l2Src, gst_imx_v4l2src, GST_TYPE_PUSH_SRC);
++G_DEFINE_TYPE (GstImxFslV4l2Src, gst_imx_v4l2src, GST_TYPE_PUSH_SRC);
+ 
+ static void
+ gst_imx_v4l2src_get_property (GObject * object,
+     guint prop_id, GValue * value, GParamSpec * pspec)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (object);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (object);
+ 
+   switch (prop_id) {
+     case PROP_DEVICE:
+@@ -66,7 +66,7 @@ static void
+ gst_imx_v4l2src_set_property (GObject * object,
+     guint prop_id, const GValue * value, GParamSpec * pspec)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (object);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (object);
+ 
+   switch (prop_id) {
+     case PROP_DEVICE:
+@@ -89,7 +89,7 @@ gst_imx_v4l2src_set_property (GObject *
+ static gboolean
+ gst_imx_v4l2src_start (GstBaseSrc * src)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (src);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (src);
+ 
+   GST_INFO_OBJECT (v4l2src, "open device: %s", v4l2src->device);
+   v4l2src->v4l2handle = gst_imx_v4l2_open_device (v4l2src->device, \
+@@ -104,7 +104,7 @@ gst_imx_v4l2src_start (GstBaseSrc * src)
+ static gboolean
+ gst_imx_v4l2src_stop (GstBaseSrc * src)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (src);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (src);
+ 
+   if (v4l2src->v4l2handle) {
+     if (gst_imx_v4l2_reset_device (v4l2src->v4l2handle) < 0) {
+@@ -147,7 +147,7 @@ gst_imx_v4l2src_stop (GstBaseSrc * src)
+ static GstCaps *
+ gst_imx_v4l2src_get_device_caps (GstBaseSrc * src)
+ {
+-  GstImxV4l2Src *v4l2src;
++  GstImxFslV4l2Src *v4l2src;
+   GstCaps *caps = NULL;
+ 
+   v4l2src = GST_IMX_V4L2SRC (src);
+@@ -204,7 +204,7 @@ gst_imx_v4l2_special_fmt (GstCaps *caps)
+ }
+ 
+ static gboolean
+-gst_imx_v4l2src_reset (GstImxV4l2Src * v4l2src)
++gst_imx_v4l2src_reset (GstImxFslV4l2Src * v4l2src)
+ {
+   if (v4l2src->pool) {
+     gst_object_unref (v4l2src->pool);
+@@ -229,7 +229,7 @@ gst_imx_v4l2src_reset (GstImxV4l2Src * v
+ static gboolean
+ gst_imx_v4l2src_set_caps (GstBaseSrc * src, GstCaps * caps)
+ {
+-  GstImxV4l2Src *v4l2src;
++  GstImxFslV4l2Src *v4l2src;
+   GstVideoInfo info;
+   guint v4l2fmt;
+ 
+@@ -282,7 +282,7 @@ gst_imx_v4l2src_set_caps (GstBaseSrc * s
+ static gboolean
+ gst_imx_v4l2src_query (GstBaseSrc * bsrc, GstQuery * query)
+ {
+-  GstImxV4l2Src *v4l2src;
++  GstImxFslV4l2Src *v4l2src;
+   gboolean res = FALSE;
+ 
+   v4l2src = GST_IMX_V4L2SRC (bsrc);
+@@ -337,7 +337,7 @@ done:
+ }
+ 
+ static gint
+-gst_imx_v4l2src_config (GstImxV4l2Src *v4l2src)
++gst_imx_v4l2src_config (GstImxFslV4l2Src *v4l2src)
+ {
+   guint w,h;
+ 
+@@ -355,7 +355,7 @@ gst_imx_v4l2src_config (GstImxV4l2Src *v
+ static gint
+ gst_imx_v4l2_allocator_cb (gpointer user_data, gint *count)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (user_data);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (user_data);
+   guint min, max;
+ 
+   if (!v4l2src->pool)
+@@ -407,7 +407,7 @@ gst_imx_v4l2_allocator_cb (gpointer user
+ static gboolean
+ gst_imx_v4l2src_decide_allocation (GstBaseSrc * bsrc, GstQuery * query)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (bsrc);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (bsrc);
+   IMXV4l2AllocatorContext context;
+   GstCaps *outcaps;
+   GstBufferPool *pool = NULL;
+@@ -532,7 +532,7 @@ gst_imx_v4l2src_decide_allocation (GstBa
+ }
+ 
+ static GstFlowReturn
+-gst_imx_v4l2src_register_buffer (GstImxV4l2Src * v4l2src)
++gst_imx_v4l2src_register_buffer (GstImxFslV4l2Src * v4l2src)
+ {
+   GstFlowReturn ret = GST_FLOW_OK;
+   PhyMemBlock *memblk;
+@@ -564,7 +564,7 @@ gst_imx_v4l2src_register_buffer (GstImxV
+ }
+  
+ static GstFlowReturn
+-gst_imx_v4l2src_acquire_buffer (GstImxV4l2Src * v4l2src, GstBuffer ** buf)
++gst_imx_v4l2src_acquire_buffer (GstImxFslV4l2Src * v4l2src, GstBuffer ** buf)
+ {
+   GstFlowReturn ret = GST_FLOW_OK;
+   GstVideoFrameFlags flags = GST_VIDEO_FRAME_FLAG_NONE;
+@@ -637,7 +637,7 @@ gst_imx_v4l2src_acquire_buffer (GstImxV4
+ static GstFlowReturn
+ gst_imx_v4l2src_create (GstPushSrc * src, GstBuffer ** buf)
+ {
+-  GstImxV4l2Src *v4l2src = GST_IMX_V4L2SRC (src);
++  GstImxFslV4l2Src *v4l2src = GST_IMX_V4L2SRC (src);
+   GstFlowReturn ret;
+   GstClock *clock;
+   GstClockTime abs_time, base_time, timestamp, duration;
+@@ -723,7 +723,7 @@ gst_imx_v4l2src_create (GstPushSrc * src
+ }
+ 
+ static void
+-gst_imx_v4l2src_finalize (GstImxV4l2Src * v4l2src)
++gst_imx_v4l2src_finalize (GstImxFslV4l2Src * v4l2src)
+ {
+   if (v4l2src->device)
+     g_free (v4l2src->device);
+@@ -775,7 +775,7 @@ gst_imx_v4l2src_get_all_caps ()
+ //type functions
+ 
+ static void
+-gst_imx_v4l2src_class_init (GstImxV4l2SrcClass * klass)
++gst_imx_v4l2src_class_init (GstImxFslV4l2SrcClass * klass)
+ {
+   GObjectClass *gobject_class;
+   GstElementClass *element_class;
+@@ -815,7 +815,7 @@ gst_imx_v4l2src_class_init (GstImxV4l2Sr
+ }
+ 
+ static void
+-gst_imx_v4l2src_init (GstImxV4l2Src * v4l2src)
++gst_imx_v4l2src_init (GstImxFslV4l2Src * v4l2src)
+ {
+   v4l2src->device = g_strdup (DEFAULT_DEVICE);
+   v4l2src->frame_plus = DEFAULT_FRAME_PLUS;
+Index: gst-plugins-imx-4.0.4/src/plugins/v4l2/gstimxv4l2src.h
+===================================================================
+--- gst-plugins-imx-4.0.4.orig/src/plugins/v4l2/gstimxv4l2src.h
++++ gst-plugins-imx-4.0.4/src/plugins/v4l2/gstimxv4l2src.h
+@@ -28,16 +28,16 @@
+ #define GST_TYPE_IMX_V4L2SRC \
+   (gst_imx_v4l2src_get_type())
+ #define GST_IMX_V4L2SRC(obj) \
+-  (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_IMX_V4L2SRC, GstImxV4l2Src))
++  (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_IMX_V4L2SRC, GstImxFslV4l2Src))
+ #define GST_IMX_V4L2SRC_CLASS(klass) \
+-  (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_IMX_V4L2SRC, GstImxV4l2SrcClass))
++  (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_IMX_V4L2SRC, GstImxFslV4l2SrcClass))
+ #define GST_IS_IMX_V4L2SRC(obj) \
+   (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_IMX_V4L2SRC))
+ #define GST_IS_IMX_V4L2SRC_CLASS(klass) \
+   (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_IMX_V4L2SRC))
+ 
+-typedef struct _GstImxV4l2Src GstImxV4l2Src;
+-typedef struct _GstImxV4l2SrcClass GstImxV4l2SrcClass;
++typedef struct _GstImxV4l2Src GstImxFslV4l2Src;
++typedef struct _GstImxV4l2SrcClass GstImxFslV4l2SrcClass;
+ 
+ struct _GstImxV4l2Src {
+   GstPushSrc videosrc;
+Index: gst-plugins-imx-4.0.4/src/plugins/v4l2/gstimxv4l2plugins.c
+===================================================================
+--- gst-plugins-imx-4.0.4.orig/src/plugins/v4l2/gstimxv4l2plugins.c
++++ gst-plugins-imx-4.0.4/src/plugins/v4l2/gstimxv4l2plugins.c
+@@ -31,7 +31,7 @@ plugin_init (GstPlugin * plugin)
+         GST_TYPE_IMX_V4L2SINK))
+     return FALSE;
+ 
+-  if (!gst_element_register (plugin, "imxv4l2src", IMX_GST_PLUGIN_RANK,
++  if (!gst_element_register (plugin, "imxfslv4l2src", IMX_GST_PLUGIN_RANK,
+         GST_TYPE_IMX_V4L2SRC))
+     return FALSE;
+ 

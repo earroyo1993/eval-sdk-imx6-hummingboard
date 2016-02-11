@@ -1,0 +1,7 @@
+config PROPRIETARY_LIB_FSL_VPU_WRAP
+	bool "libfslvpuwrap 1.0.58"
+	select FS_APPS_GSTREAMER
+	select PROPRIETARY_IMX_VPU_LIB
+	help
+	    This option enables the VPU wrapper for freescale gstreamer 
+	    plugins kernel version 3.14.28

@@ -1,0 +1,135 @@
+Index: kernel/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_common.c
+===================================================================
+--- kernel.orig/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_common.c	2014-07-02 16:16:50.000000000 -0600
++++ kernel/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_common.c	2014-09-03 08:14:30.273072336 -0600
+@@ -500,8 +500,8 @@
+ int32_t ipu_init_channel(struct ipu_soc *ipu, ipu_channel_t channel, ipu_channel_params_t *params)
+ {
+ 	int ret = 0;
+-	uint32_t ipu_conf;
+-	uint32_t reg;
++	bool bad_pixfmt;
++	uint32_t ipu_conf, reg, in_g_pixel_fmt, sec_dma;
+ 
+ 	dev_dbg(ipu->dev, "init channel = %d\n", IPU_CHAN_ID(channel));
+ 
+@@ -642,16 +642,30 @@
+ 		_ipu_ic_init_prpvf(ipu, params, true);
+ 		break;
+ 	case MEM_PRP_VF_MEM:
+-		ipu->ic_use_count++;
++		if (params->mem_prp_vf_mem.graphics_combine_en) {
++			sec_dma = channel_2_dma(channel, IPU_GRAPH_IN_BUFFER);
++			in_g_pixel_fmt = params->mem_prp_vf_mem.in_g_pixel_fmt;
++			bad_pixfmt =
++			_ipu_ch_param_bad_alpha_pos(in_g_pixel_fmt);
++		
++			if (params->mem_prp_vf_mem.alpha_chan_en) {
++				if (bad_pixfmt) {
++					dev_err(ipu->dev, "bad pixel format "
++									"for graphics plane from "
++									"ch%d\n", sec_dma);
++					ret = -EINVAL;
++					goto err;
++				}
++				ipu->thrd_chan_en[IPU_CHAN_ID(channel)] = true;
++			}
++			ipu->sec_chan_en[IPU_CHAN_ID(channel)] = true;
++		 }
++
+ 		reg = ipu_cm_read(ipu, IPU_FS_PROC_FLOW1);
+ 		ipu_cm_write(ipu, reg | FS_VF_IN_VALID, IPU_FS_PROC_FLOW1);
+ 
+-		if (params->mem_prp_vf_mem.graphics_combine_en)
+-			ipu->sec_chan_en[IPU_CHAN_ID(channel)] = true;
+-		if (params->mem_prp_vf_mem.alpha_chan_en)
+-			ipu->thrd_chan_en[IPU_CHAN_ID(channel)] = true;
+-
+ 		_ipu_ic_init_prpvf(ipu, params, false);
++		ipu->ic_use_count++;
+ 		break;
+ 	case MEM_VDI_PRP_VF_MEM:
+ 		if ((ipu->using_ic_dirct_ch == CSI_PRP_VF_MEM) ||
+@@ -708,10 +722,24 @@
+ 		_ipu_ic_init_rotate_enc(ipu, params);
+ 		break;
+ 	case MEM_PP_MEM:
+-		if (params->mem_pp_mem.graphics_combine_en)
++		if (params->mem_pp_mem.graphics_combine_en) {
++			sec_dma = channel_2_dma(channel, IPU_GRAPH_IN_BUFFER);
++			in_g_pixel_fmt = params->mem_pp_mem.in_g_pixel_fmt;
++			bad_pixfmt =
++			_ipu_ch_param_bad_alpha_pos(in_g_pixel_fmt);
++
++			if (params->mem_pp_mem.alpha_chan_en) {
++				if (bad_pixfmt) {
++					dev_err(ipu->dev, "bad pixel format "
++								"for graphics plane from "
++								"ch%d\n", sec_dma);
++					ret = -EINVAL;
++					goto err;
++				}
++				ipu->thrd_chan_en[IPU_CHAN_ID(channel)] = true;
++			}
+ 			ipu->sec_chan_en[IPU_CHAN_ID(channel)] = true;
+-		if (params->mem_pp_mem.alpha_chan_en)
+-			ipu->thrd_chan_en[IPU_CHAN_ID(channel)] = true;
++		}
+ 		_ipu_ic_init_pp(ipu, params);
+ 		ipu->ic_use_count++;
+ 		break;
+@@ -2905,6 +2933,12 @@
+ 	return false;
+ }
+ 
++bool ipu_ch_param_bad_alpha_pos(uint32_t pixel_fmt)
++{
++	return _ipu_ch_param_bad_alpha_pos(pixel_fmt);
++}
++EXPORT_SYMBOL(ipu_ch_param_bad_alpha_pos);
++
+ static int ipu_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+ 	struct imx_ipuv3_platform_data *plat_data = pdev->dev.platform_data;
+Index: kernel/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_param_mem.h
+===================================================================
+--- kernel.orig/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_param_mem.h	2014-07-02 16:16:50.000000000 -0600
++++ kernel/linux-3.0.35-4.1.0/drivers/mxc/ipu3/ipu_param_mem.h	2014-09-03 08:16:52.865072883 -0600
+@@ -896,4 +896,24 @@
+ 	dev_dbg(ipu->dev, "BNDM 0x%x, ",
+ 		 ipu_ch_param_read_field_io(ipu_ch_param_addr(ipu, ch), 0, 114, 3));
+ }
++
++/*
++ * The IPUv3 IDMAC has a bug to read 32bpp pixels from a graphics plane
++ * whose alpha component is at the most significant 8 bits. The bug only
++ * impacts on cases in which the relevant separate alpha channel is enabled.
++ *
++ * Return true on bad alpha component position, otherwise, return false.
++ */
++static inline bool _ipu_ch_param_bad_alpha_pos(uint32_t pixel_fmt)
++{
++	switch (pixel_fmt) {
++		case IPU_PIX_FMT_BGRA32:
++		case IPU_PIX_FMT_BGR32:
++		case IPU_PIX_FMT_RGBA32:
++		case IPU_PIX_FMT_RGB32:
++		return true;
++ }
++
++ return false;
++}
+ #endif
+Index: kernel/linux-3.0.35-4.1.0/arch/arm/plat-mxc/include/mach/ipu-v3.h
+===================================================================
+--- kernel.orig/linux-3.0.35-4.1.0/arch/arm/plat-mxc/include/mach/ipu-v3.h	2014-07-02 16:16:48.000000000 -0600
++++ kernel/linux-3.0.35-4.1.0/arch/arm/plat-mxc/include/mach/ipu-v3.h	2014-09-03 08:18:53.321073346 -0600
+@@ -730,6 +730,8 @@
+ 
+ uint32_t bytes_per_pixel(uint32_t fmt);
+ 
++bool ipu_ch_param_bad_alpha_pos(uint32_t fmt);
++
+ struct ipuv3_fb_platform_data {
+ 	char				disp_dev[32];
+ 	u32				interface_pix_fmt;
